@@ -1,0 +1,1 @@
+#Script comportant toute les constantes majeurs et utilasables du projet (style la grille, la profondeur...)

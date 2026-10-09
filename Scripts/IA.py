@@ -1,0 +1,1 @@
+# Il va s'occuper de gerer toute la partie IA/heuristique du projet (le jeu solo)
