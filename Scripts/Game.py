@@ -2,3 +2,5 @@
 
 #Ici on va certainement faire une class de grille qui s'ocupe de tout les calul sur la grille
 # Et faire une autre class Jeu qui elle s'occupe de gerer les tours de joueurs, la victoire, les points...
+
+print("test")
