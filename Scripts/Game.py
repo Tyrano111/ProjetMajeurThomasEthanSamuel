@@ -3,12 +3,12 @@
 #Ici on va certainement faire une class de grille qui s'ocupe de tout les calul sur la grille
 # Et faire une autre class Jeu qui elle s'occupe de gerer les tours de joueurs, la victoire, les points...
 
-plateau=[['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','','']]
+plateau=[[" "," "," "," "," "," "," "],
+         [" "," "," "," "," "," "," "],
+         [" "," "," "," "," "," "," "],
+         [" "," "," "," "," "," "," "],
+         [" "," "," "," "," "," "," "],
+         [" "," "," "," "," "," "," "]]
 
 def afficher(plateau):
     for i in range(len(plateau)):

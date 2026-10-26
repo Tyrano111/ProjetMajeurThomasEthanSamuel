@@ -1,9 +1,9 @@
-plateau=[['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','',''],
-         ['','','','','','','']]
+plateau=[[" "," "," "," "," "," "," "],\
+         [" "," "," "," "," "," "," "],\
+         [" "," "," "," "," "," "," "],\
+         [" "," "," "," "," "," "," "],\
+         [" "," "," "," "," "," "," "],\
+         [" "," "," "," "," "," "," "]]
 
 def afficher(plateau):
     for i in range(len(plateau)):
@@ -96,13 +96,13 @@ def gagnant_d_haut(plateau, position:tuple, couleur):
 
 def winner(plateau, position:tuple, couleur):
     if gagnant_d_haut(plateau, position, couleur) or gagnant_d_bas(plateau, position, couleur) or gagnant_c(plateau, position, couleur) or gagnant_l(plateau, position, couleur):
-        return True
+        return True, couleur
     else:
-        return False
+        return False, couleur
 
 
 def trouve_position(plateau, colonne, couleur):
     for i in range(5,-1,-1):
-        if plateau[i][colonne]=='':
+        if plateau[i][colonne]==" ":
             plateau[i][colonne]=couleur
             return plateau, (i,colonne)
