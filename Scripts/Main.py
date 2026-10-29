@@ -5,8 +5,6 @@ import ConstantesEtVariable as CV
 import pygame
 
 
-victoire = False
-
 class Main:
     def __init__(self):
         pygame.init()
@@ -17,9 +15,10 @@ class Main:
         self.echap = False
         self.joueur = "r"
         self.grille = UI.Grille()
-        self.bouton1 = UI.BoutonRond((950, 150), 45, "Assets/JetonRouge.png")
-        self.bouton2 = UI.BoutonRond((950, 350), 45, "Assets/JetonJaune.png")
-        self.bouton3 = UI.BoutonRond((950, 550), 45, "Assets/JetonRouge.png")
+        self.victoire = UI.Victoire()
+        self.boutons = []
+        self.bouton1 = UI.BoutonSort((950, 150), 128, "Assets/BoutonSort1")
+        self.etatSort1 = "Normal"
         self.accueil = UI.Menu("Accueil")
         self.pause = UI.Menu("Pause")
         self.jeton_jaune = UI.Jeton("j")
@@ -29,58 +28,70 @@ class Main:
         self.position_futur_jeton = ()
         self.force_rebon = 0
 
-    def UpdateJeu(self):
-        while self.etat == "Jeu":
+    def Update(self):
+        while self.etat != "":
             self.ecran.fill("black")
 
-            if self.echap:
-                self.UpdatePause()
-            else:
+            if self.etat == "Menu": 
+                self.UpdateAccueil()
+            elif self.etat == "Jeu":
+                if self.echap:
+                    self.UpdatePause()
+                else:
+                    self.UpdateJeu()
+            else: 
+                self.UpdateVictoire()
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.etat = ""
-                    elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            self.echap = True
-                    elif not self.est_en_chute:
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            if event.button == 1:
-                                resultat = self.place_jeton(pygame.mouse.get_pos())
-                                if resultat != None:
-                                    self.est_en_chute, self.indice_futur_jeton, self.force_rebon = resultat
-                                    self.position_futur_jeton = self.indice_a_position(self.indice_futur_jeton)
-
-                self.PlacementJeton()
-
-                self.InterfaceDeJeu()
-            
             pygame.display.flip()
-            
             self.clock.tick(60)
+
+        pygame.quit()
+            
+
+    def UpdateJeu(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.etat = ""
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.echap = True
+                elif event.key == pygame.K_SPACE and self.etatSort1 == "Clique":
+                    self.etatSort1 = "Utilisé"
+                    self.bouton1.position = (self.bouton1.position[0] + 5, self.bouton1.position[1] + 5)
+            elif not self.est_en_chute:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        resultat = self.place_jeton(pygame.mouse.get_pos())
+                        if resultat != None:
+                            self.est_en_chute, self.indice_futur_jeton, self.force_rebon = resultat
+                            self.position_futur_jeton = self.indice_a_position(self.indice_futur_jeton)
+                        if self.etatSort1 != "Utilisé":
+                            mouse = pygame.mouse.get_pos()
+                            if self.bouton1.est_clique(mouse) and self.etatSort1 == "Normal":
+                                self.etatSort1 = "Clique"
+                                self.bouton1.position = (self.bouton1.position[0] - 5, self.bouton1.position[1] - 5)
+                            elif self.bouton1.est_clique(mouse):
+                                self.etatSort1 = "Normal"
+                                self.bouton1.position = (self.bouton1.position[0] + 5, self.bouton1.position[1] + 5)
+
+        self.PlacementJeton()
+        self.InterfaceDeJeu()
 
 
     def UpdateAccueil(self):
-        while self.etat == "Menu":
-            self.ecran.fill("black")
-            
-            self.accueil.draw(self.ecran)
+        self.accueil.draw(self.ecran)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.etat = ""
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse = pygame.mouse.get_pos()
+                clique = self.accueil.BoutonClique(mouse)
+                if clique == 1:
+                    self.etat = "Jeu"
+                if clique == 2:
                     self.etat = ""
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse = pygame.mouse.get_pos()
-                    clique = self.accueil.BoutonClique(mouse)
-                    if clique == 1:
-                        self.etat = "Jeu"
-                        self.UpdateJeu()
-                    if clique == 2:
-                        self.etat = ""
-                        
-            pygame.display.flip()
-            self.clock.tick(60)
-        pygame.quit()
+
 
 
     def UpdatePause(self):
@@ -98,7 +109,18 @@ class Main:
                 if clique == 2:
                     self.echap = False
                     self.etat = "Menu"
-                    CV.grille = [["", "", "", "", "", "", ""] for i in range(6)]
+                    self.ReinitialiserJeu()
+
+    def UpdateVictoire(self):
+        self.victoire.draw(self.ecran, self.joueur)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.etat = ""
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.echap = False
+                    self.etat = "Menu"
+                    self.ReinitialiserJeu()
 
     def indice_a_position(self, indice):
         return CV.POS_GRILLE_X + indice[1] * CV.TAILLE_CASE, CV.POS_GRILLE_Y + indice[0] * CV.TAILLE_CASE
@@ -113,14 +135,19 @@ class Main:
                 self.jeton_rouge.position[1] = 0
                 gagnant = Game.winner(CV.grille, self.indice_futur_jeton, "j") if self.joueur == "j" else Game.winner(CV.grille, self.indice_futur_jeton, "r")
                 if gagnant:
-                    print("r" if self.joueur == "r" else "j")
-                self.joueur = "j" if self.joueur == "r" else "r"
+                    self.etat = "Victoire"
+                else:
+                    self.joueur = "j" if self.joueur == "r" else "r"
 
     def InterfaceDeJeu(self):
-        self.grille.draw(self.ecran)
-        self.bouton1.draw(self.ecran)
-        self.bouton2.draw(self.ecran)
-        self.bouton3.draw(self.ecran)
+        mouse = pygame.mouse.get_pos()
+        self.grille.draw(self.ecran, mouse, False)
+        self.bouton1.draw(self.ecran, self.etatSort1)
+
+    def ReinitialiserJeu(self):
+        CV.grille = [["", "", "", "", "", "", ""] for i in range(6)]
+        self.est_en_chute = False
+        self.joueur = "r"
 
     def place_jeton(self, mouse):
         for indLigne, ligne in enumerate(CV.grille):
@@ -133,4 +160,4 @@ class Main:
                     if indice_arret[0]:
                         return True, (indice_arret[1], indColone), CV.DICT_FORCE_REBON[indice_arret[1]]
 
-Main().UpdateAccueil()
+Main().Update()

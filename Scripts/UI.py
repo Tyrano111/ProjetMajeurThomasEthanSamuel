@@ -43,15 +43,22 @@ class Bouton:
         return True if self.rectBouton.collidepoint(mouse) else False
 
 
-class BoutonRond:
+class BoutonSort:
     def __init__(self, position, diametre, asset):
         self.position = position  # coin haut-gauche de l'image
         self.rayon = diametre / 2
         self.centre = (position[0] + self.rayon, position[1] + self.rayon)
-        self.uiBouton = pygame.image.load(asset).convert_alpha()
+        self.uiBouton = pygame.image.load(asset + ".png").convert_alpha()
+        self.uiBoutonClique = pygame.image.load(asset + "Clique.png").convert_alpha()
+        self.uiBoutonUtilise = pygame.image.load(asset + "Utilise.png").convert_alpha()
 
-    def draw(self, ecran):
-        ecran.blit(self.uiBouton, self.position)
+    def draw(self, ecran, etat):
+        if etat == "Normal":
+            ecran.blit(self.uiBouton, self.position)
+        elif etat == "Clique":
+            ecran.blit(self.uiBoutonClique, self.position)
+        else:
+            ecran.blit(self.uiBoutonUtilise, self.position)
 
     def est_clique(self, mouse):
         dx = mouse[0] - self.centre[0]
@@ -61,18 +68,26 @@ class BoutonRond:
 class Grille:
     def __init__(self):
         self.uiCase = pygame.image.load("Assets/CaseGrille.png").convert_alpha()
+        self.uiCaseSurvole = pygame.image.load("Assets/CaseGrilleSurvole.png").convert_alpha()
         self.position = (CV.POS_GRILLE_X, CV.POS_GRILLE_Y)
         self.uiJetonJaune = pygame.image.load("Assets/JetonJaune.png").convert_alpha()
         self.uiJetonRouge = pygame.image.load("Assets/JetonRouge.png").convert_alpha()
 
-    def draw(self, ecran):
+    def draw(self, ecran, mouse, useSpell):
         for indLigne, ligne in enumerate(CV.grille):
             posLigne = self.position[1] + indLigne * CV.TAILLE_CASE
             for indColone, case in enumerate(ligne):
                 posColone = self.position[0] + indColone * CV.TAILLE_CASE
                 if case != "":
                     ecran.blit(self.uiJetonRouge, (posColone + 11, posLigne + 11)) if case == "r" else ecran.blit(self.uiJetonJaune, (posColone + 11, posLigne + 11)) 
-                ecran.blit(self.uiCase, (posColone, posLigne))
+                if useSpell:
+                    rect = pygame.Rect(posColone, posLigne, CV.TAILLE_CASE, CV.TAILLE_CASE)
+                else:
+                    rect = pygame.Rect(posColone, CV.POS_GRILLE_Y, CV.TAILLE_CASE, CV.TAILLE_GRILLE[1])
+                if rect.collidepoint(mouse):
+                    ecran.blit(self.uiCaseSurvole, (posColone, posLigne))
+                else:
+                    ecran.blit(self.uiCase, (posColone, posLigne))
                     
 class Menu:
     def __init__(self, typeMenu):
@@ -90,4 +105,36 @@ class Menu:
             return 2
         return 0
 
+class Victoire:
+    def __init__(self):
+        self.fontTitre = pygame.font.SysFont("Corbel", 80, bold=True)
+        self.fontJoueur = pygame.font.SysFont("Corbel", 55, bold=True)
+        self.fontTexte = pygame.font.SysFont("Corbel", 30)
 
+        self.couleurTexte = (255, 255, 255)
+        self.couleurRouge = (220, 40, 40)
+        self.couleurJaune = (240, 210, 30)
+
+    def draw(self, ecran, joueur):
+
+        # Titre
+        titre = self.fontTitre.render("VICTOIRE !", True, self.couleurTexte)
+        rectTitre = titre.get_rect(center=(ecran.get_width() // 2, 150))
+        ecran.blit(titre, rectTitre)
+
+        # Nom du joueur gagnant
+        if joueur == "r":
+            nomJoueur = "Joueur rouge"
+            couleurJoueur = self.couleurRouge
+        else:
+            nomJoueur = "Joueur jaune"
+            couleurJoueur = self.couleurJaune
+
+        texteJoueur = self.fontJoueur.render(nomJoueur, True, couleurJoueur)
+        rectJoueur = texteJoueur.get_rect(center=(ecran.get_width() // 2, 280))
+        ecran.blit(texteJoueur, rectJoueur)
+
+        # Texte complémentaire
+        texteFin = self.fontTexte.render("a remporte la partie !", True, self.couleurTexte)
+        rectFin = texteFin.get_rect(center=(ecran.get_width() // 2, 350))
+        ecran.blit(texteFin, rectFin)
