@@ -6,14 +6,14 @@ import Main as m
 
 #Valeurs de test
 
-AI_DEPTH=5
+AI_DEPTH=8
 
-test_grid=[ [" "," "," "," "," "," ","j"],\
-            [" "," "," "," "," "," ","r"],\
-            [" "," "," "," "," "," ","j"],\
-            [" "," "," "," ","r"," ","r"],\
-            [" "," "," ","j","r","r","j"],\
-            [" "," "," ","r","j","j","r"]]
+test_grid=[ ["j","r","j"," ","j"," ","r"],\
+            ["j","j","j"," ","j","r","j"],\
+            ["j","r","r","r","r","r","r"],\
+            ["r","j","r","j","r","j","r"],\
+            ["j","r","j","j","r","r","j"],\
+            ["r","j","j","r","j","j","r"]]
 
 #Fonctions de l'IA
 
@@ -28,11 +28,11 @@ def minimax(grid, player, depth, position): #Par récursivité, on va simuler to
     other = "r" if player == "j" else "j"
     game_over=m.winner(grid, position, other)
     if game_over[0]: #Si le jeu est terminé, on retourne le score du gagnant
-        print("game_over:",position, game_over[1])
-        m.afficher(grid)
         return 1 if game_over[1]=="j" else -1 #On remplace la couleur du gagnant par un score pour l'IA (1 si l'IA gagne, -1 si le joueur gagne)
     if depth == 0:
         return 0 
+    if empty_space(grid)==[]: #Si il n'y a plus de place, on retourne 0 (égalité)
+        return 0
     
     values=[]
     for c in empty_space(grid):
@@ -67,6 +67,7 @@ def best_placement(grid): #On cherche le meilleur coup et on renvoit la colonne 
             grid[l][c] = " "
             return c
         grid[l][c] = " "
+    #Optimisation 3: Trouver un chemin qui ne possède que des victoires
 
     for c in empty_space(grid):
         l=m.trouve_position(grid,c,"j")[1][0]
@@ -76,7 +77,7 @@ def best_placement(grid): #On cherche le meilleur coup et on renvoit la colonne 
         if best_value==None or value>best_value:
             best_value,best_placement=value,c
         
-    return best_placement,grid
+    return best_placement
 
 #Tests
 
