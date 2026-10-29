@@ -17,7 +17,7 @@ test_grid=[ ["j","r","j"," ","j"," ","r"],\
 
 #Fonctions de l'IA
 
-def empty_space(grid): #On cherche les collones où on peut placer un jeton (donc les collones où la case du haut est vide)
+def empty_space(grid): #On cherche les colonnes où on peut placer un jeton (donc les colonnes où la case du haut est vide)
     empty=[]
     for c in range(len(grid[0])):
         if grid[0][c]==" ":
