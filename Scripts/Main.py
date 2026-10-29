@@ -160,4 +160,4 @@ class Main:
                     if indice_arret[0]:
                         return True, (indice_arret[1], indColone), CV.DICT_FORCE_REBON[indice_arret[1]]
 
-Main().Update()
+Main().UpdateAccueil()

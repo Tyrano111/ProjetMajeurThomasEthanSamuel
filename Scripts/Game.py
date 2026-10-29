@@ -107,6 +107,6 @@ def winner(plateau, position:tuple, couleur):
 
 def trouve_position(plateau, colonne):
     for i in range(5,-1,-1):
-        if plateau[i][colonne]=='':
+        if plateau[i][colonne]==' ':
             return True, i
     return False, i
