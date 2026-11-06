@@ -1,6 +1,6 @@
 #Script comportant toute les constantes majeurs et utilasables du projet (style la grille, la profondeur...)
 #Variable de la grille 
-grille = [["", "", "", "", "", "", ""] for i in range(6)]
+grille = [[" ", " ", " ", " ", " ", " ", " "] for i in range(6)]
 TAILLE_GRILLE = (840, 720)
 
 #Variable generale pour le UI

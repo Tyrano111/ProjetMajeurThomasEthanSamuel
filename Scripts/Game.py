@@ -106,7 +106,41 @@ def winner(plateau, position:tuple, couleur):
 
 
 def trouve_position(plateau, colonne):
-    for i in range(5,-1,-1):
-        if plateau[i][colonne]==' ':
-            return True, i
-    return False, i
+    if plateau[0][colonne] != ".":
+        for i in range(5,-1,-1):
+            if plateau[i][colonne]==' ':
+                return True, i
+    return False, 0
+
+
+def bloque_colonne(plateau, colonne):
+    if plateau[0][colonne] == " " :
+        plateau[0][colonne] = "."
+    return plateau
+
+def desbloque_colonne(plateau, colonne):
+    for i in range(7):
+        if plateau[0][i]== ".":
+            plateau[0][i]= " " 
+    return plateau
+
+def fantome(plateau, position, couleur):
+    ligne=position[0]
+    colonne=position[1]
+    if plateau[ligne][colonne]==" "  and plateau[0][colonne]!='.':
+        plateau[ligne][colonne]='f'+couleur
+        return plateau, (ligne, colonne)
+    else:
+        return 'position indisponible'
+
+def desbloque_fantome(plateau, position):
+    ligne=position[0]
+    colonne=position[1]
+    if ligne==0:
+        return None
+    if plateau[ligne-1][colonne]==" fr ":
+        plateau[ligne-1][colonne]= " r "
+        return plateau, (ligne-1,colonne)
+    if plateau[ligne-1][colonne]== " fj ":
+        plateau[ligne-1][colonne]= " j "
+        return plateau, (ligne-1,colonne)

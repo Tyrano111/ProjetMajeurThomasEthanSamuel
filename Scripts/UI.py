@@ -1,7 +1,6 @@
 #Il s'occupe de toute la partie graphique avec pygame
 import pygame
 import ConstantesEtVariable as CV
-import Game
 
 class Jeton:
     def __init__(self, couleur):
@@ -34,7 +33,7 @@ class Bouton:
     def __init__(self, position, taille, asset):
         self.position = position
         self.uiBouton = pygame.image.load(asset).convert_alpha()
-        self.rectBouton = pygame.Rect(position[0], position[1], taille[0], taille[0])
+        self.rectBouton = pygame.Rect(position[0], position[1], taille[0], taille[1])
 
     def draw(self, ecran):
         ecran.blit(self.uiBouton, self.position)
@@ -73,12 +72,12 @@ class Grille:
         self.uiJetonJaune = pygame.image.load("Assets/JetonJaune.png").convert_alpha()
         self.uiJetonRouge = pygame.image.load("Assets/JetonRouge.png").convert_alpha()
 
-    def draw(self, ecran, mouse, useSpell):
-        for indLigne, ligne in enumerate(CV.grille):
+    def draw(self, grille, ecran, mouse, useSpell):
+        for indLigne, ligne in enumerate(grille):
             posLigne = self.position[1] + indLigne * CV.TAILLE_CASE
             for indColone, case in enumerate(ligne):
                 posColone = self.position[0] + indColone * CV.TAILLE_CASE
-                if case != "":
+                if case != " ":
                     ecran.blit(self.uiJetonRouge, (posColone + 11, posLigne + 11)) if case == "r" else ecran.blit(self.uiJetonJaune, (posColone + 11, posLigne + 11)) 
                 if useSpell:
                     rect = pygame.Rect(posColone, posLigne, CV.TAILLE_CASE, CV.TAILLE_CASE)
@@ -91,8 +90,8 @@ class Grille:
                     
 class Menu:
     def __init__(self, typeMenu):
-        self.Bouton1 = Bouton((300, 300), (300, 150), "Assets/BoutonJouer.png") if typeMenu == "Accueil" else Bouton((300, 300), (300, 150), "Assets/BoutonJouer.png")
-        self.Bouton2 = Bouton((300, 600), (300, 150), "Assets/BoutonJouer.png") if typeMenu == "Accueil" else Bouton((300, 600), (300, 150), "Assets/BoutonJouer.png")
+        self.Bouton1 = Bouton((500, 200), (300, 120), "Assets/BoutonJouer.png") if typeMenu == "Accueil" else Bouton((500, 200), (300, 120), "Assets/BoutonJouer.png")
+        self.Bouton2 = Bouton((500, 400), (300, 120), "Assets/BoutonJouer.png") if typeMenu == "Accueil" else Bouton((500, 400), (300, 120), "Assets/BoutonJouer.png")
 
     def draw(self, ecran):
         self.Bouton1.draw(ecran)
@@ -114,6 +113,8 @@ class Victoire:
         self.couleurTexte = (255, 255, 255)
         self.couleurRouge = (220, 40, 40)
         self.couleurJaune = (240, 210, 30)
+
+        self.bouton = Bouton((500, 500), (300, 120), "Assets/BoutonJouer.png")
 
     def draw(self, ecran, joueur):
 
@@ -138,3 +139,5 @@ class Victoire:
         texteFin = self.fontTexte.render("a remporte la partie !", True, self.couleurTexte)
         rectFin = texteFin.get_rect(center=(ecran.get_width() // 2, 350))
         ecran.blit(texteFin, rectFin)
+
+        self.bouton.draw(ecran)
