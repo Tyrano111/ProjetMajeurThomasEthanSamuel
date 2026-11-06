@@ -3,6 +3,9 @@
 #Ici on va certainement faire une class de grille qui s'ocupe de tout les calul sur la grille
 # Et faire une autre class Jeu qui elle s'occupe de gerer les tours de joueurs, la victoire, les points...
 
+from ctypes import Union
+
+
 plateau=[[" "," "," "," "," "," "," "],
          [" "," "," "," "," "," "," "],
          [" "," "," "," "," "," "," "],
@@ -10,12 +13,13 @@ plateau=[[" "," "," "," "," "," "," "],
          [" "," "," "," "," "," "," "],
          [" "," "," "," "," "," "," "]]
 
-def afficher(plateau):
+def afficher(plateau : list):
     for i in range(len(plateau)):
         print(plateau[i])
         
 
-def gagnant_l(plateau, position:tuple, couleur):
+def gagnant_l(plateau : list, position : tuple, couleur : str) -> bool:
+    """Vérifie si le dernier coup a permis de gagner sur la ligne"""
     ligne=position[0]
     n=0
     for i in range(7):
@@ -28,7 +32,8 @@ def gagnant_l(plateau, position:tuple, couleur):
     return False
 
     
-def gagnant_c(plateau, position:tuple, couleur):
+def gagnant_c(plateau : list, position : tuple, couleur : str) -> bool:
+    """Vérifie si le dernier coup a permis de gagner sur la colonne"""
     n=0
     colonne=position[1]
     for i in range(6):
@@ -41,7 +46,8 @@ def gagnant_c(plateau, position:tuple, couleur):
     return False
 
 
-def position_diagonale_bas(position):
+def position_diagonale_bas(position : tuple) -> list:
+    '''Renvoie la position de la case la plus basse de la diagonale montante passant par la position donnée'''
     ligne=position[0]
     colonne=position[1]
     position_bas=[]
@@ -54,7 +60,8 @@ def position_diagonale_bas(position):
     return position_bas
 
 
-def position_diagonale_haut(position):
+def position_diagonale_haut(position : tuple) -> list:
+    '''Renvoie la position de la case la plus haute de la diagonale descendante passant par la position donnée'''
     ligne=position[0]
     colonne=position[1]
     position_haut=[]
@@ -66,7 +73,8 @@ def position_diagonale_haut(position):
         position_haut.append(0)
     return position_haut
 
-def gagnant_d_bas(plateau, position:tuple, couleur):
+def gagnant_d_bas(plateau : list, position : tuple, couleur : str) -> bool:
+    '''Vérifie si le dernier coup a permis de gagner sur la diagonale montante'''
     position_bas=position_diagonale_bas(position)
     ligne=position_bas[0]
     colonne=position_bas[1]
@@ -82,7 +90,8 @@ def gagnant_d_bas(plateau, position:tuple, couleur):
     return False  
 
 
-def gagnant_d_haut(plateau, position:tuple, couleur):
+def gagnant_d_haut(plateau : list, position : tuple, couleur : str) -> bool:
+    '''Vérifie si le dernier coup a permis de gagner sur la diagonale descendante'''
     position_haut=position_diagonale_haut(position)
     ligne=position_haut[0]
     colonne=position_haut[1]
@@ -98,14 +107,16 @@ def gagnant_d_haut(plateau, position:tuple, couleur):
     return False  
 
 
-def winner(plateau, position:tuple, couleur):
+def winner(plateau : list, position : tuple, couleur : str) -> bool:
+    '''Vérifie si le dernier coup a permis de gagner'''
     if gagnant_d_haut(plateau, position, couleur) or gagnant_d_bas(plateau, position, couleur) or gagnant_c(plateau, position, couleur) or gagnant_l(plateau, position, couleur):
         return True
     else:
         return False
 
 
-def trouve_position(plateau, colonne):
+def trouve_position(plateau : list, colonne : int) -> tuple:
+    '''Renvoie la position de la case la plus basse de la colonne donnée'''
     if plateau[0][colonne] != ".":
         for i in range(5,-1,-1):
             if plateau[i][colonne]==' ':
@@ -113,18 +124,26 @@ def trouve_position(plateau, colonne):
     return False, 0
 
 
-def bloque_colonne(plateau, colonne):
-    if plateau[0][colonne] == " " :
-        plateau[0][colonne] = "."
+def bloque_colonne(plateau : list, colonne : int, couleur : str) -> list:
+    '''Bloque la colonne donnée lors de son tour et celui de l'adversaire'''
+    couleur_adverse=""
+    if couleur=="r":
+        couleur_adverse="j"
+    else:
+        couleur_adverse="r"
+    if plateau[0][colonne] == " " or plateau[0][colonne] == f".{couleur_adverse}":
+        plateau[0][colonne] = f".{couleur}"
     return plateau
 
-def desbloque_colonne(plateau, colonne):
+def desbloque_colonne(plateau : list, couleur : str) -> list:
+    '''Débloque la colonne bloquée lors de son tour précédant'''
     for i in range(7):
-        if plateau[0][i]== ".":
+        if plateau[0][i]== f".{couleur}":
             plateau[0][i]= " " 
     return plateau
 
-def fantome(plateau, position, couleur):
+def fantome(plateau : list, position : tuple, couleur : str)-> Union[tuple, str]:
+    '''Place un fantôme de la couleur donnée à la position donnée'''
     ligne=position[0]
     colonne=position[1]
     if plateau[ligne][colonne]==" "  and plateau[0][colonne]!='.':
@@ -133,14 +152,15 @@ def fantome(plateau, position, couleur):
     else:
         return 'position indisponible'
 
-def desbloque_fantome(plateau, position):
+def desbloque_fantome(plateau : list, position : tuple)-> Union[bool, tuple]:
+    '''Change le fantôme en jeton classique à la position donnée si il y a un jeton sous le fantôme'''
     ligne=position[0]
     colonne=position[1]
     if ligne==0:
         return None
-    if plateau[ligne-1][colonne]==" fr ":
-        plateau[ligne-1][colonne]= " r "
+    if plateau[ligne-1][colonne]=="fr":
+        plateau[ligne-1][colonne]= "r"
         return plateau, (ligne-1,colonne)
-    if plateau[ligne-1][colonne]== " fj ":
-        plateau[ligne-1][colonne]= " j "
+    if plateau[ligne-1][colonne]== "fj":
+        plateau[ligne-1][colonne]= "j"
         return plateau, (ligne-1,colonne)
