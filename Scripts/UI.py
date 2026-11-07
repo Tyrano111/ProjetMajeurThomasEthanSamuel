@@ -81,8 +81,9 @@ class Grille:
         self.uiJetonNoir = pygame.image.load("Assets/JetonNoir.png").convert_alpha()
         self.uiJetonFantomeJaune = pygame.image.load("Assets/JetonFantomeJaune.png").convert_alpha()
         self.uiJetonFantomeRouge = pygame.image.load("Assets/JetonFantomeRouge.png").convert_alpha()
+        self.fontTexte = pygame.font.SysFont("Corbel", 35, bold=True)
 
-    def draw(self, grille, ecran, mouse, useSpell):
+    def draw(self, grille, ecran, mouse, useSpell, joueur):
         bloque = None
         for indLigne, ligne in enumerate(grille):
             posLigne = self.position[1] + indLigne * CV.TAILLE_CASE
@@ -111,21 +112,30 @@ class Grille:
                     ecran.blit(self.uiCaseSurvole, (posColone, posLigne))
                 else:
                     ecran.blit(self.uiCase, (posColone, posLigne))
+        titre = self.fontTexte.render("Tour du Joueur :", True, (255, 255, 255))
+        rectTitre = titre.get_rect(center=(1065, 50))
+        ecran.blit(titre, rectTitre)
+        
+        ecran.blit(self.uiJetonRouge, (1200, 1)) if joueur == "r" else ecran.blit(self.uiJetonJaune, (1200, 1))
                     
 class Menu:
     def __init__(self, typeMenu):
-        self.Bouton1 = Bouton((500, 200), (300, 120), "Assets/BoutonJouer.png") if typeMenu == "Accueil" else Bouton((500, 200), (300, 120), "Assets/BoutonJouer.png")
-        self.Bouton2 = Bouton((500, 400), (300, 120), "Assets/BoutonJouer.png") if typeMenu == "Accueil" else Bouton((500, 400), (300, 120), "Assets/BoutonJouer.png")
+        self.boutonVsIA = Bouton((550, 200), (200, 120), "Assets/BoutonVsIA.png")
+        self.boutonJcJ = Bouton((550, 400), (200, 120), "Assets/BoutonJcJ.png")
+        self.boutonQuitter = Bouton((550, 600), (200, 90), "Assets/BoutonQuitter.png")
 
     def draw(self, ecran):
-        self.Bouton1.draw(ecran)
-        self.Bouton2.draw(ecran)
+        self.boutonVsIA.draw(ecran)
+        self.boutonJcJ.draw(ecran)
+        self.boutonQuitter.draw(ecran)
 
     def BoutonClique(self, mouse):
-        if self.Bouton1.est_clique(mouse):
+        if self.boutonVsIA.est_clique(mouse):
             return 1
-        elif self.Bouton2.est_clique(mouse):
+        elif self.boutonJcJ.est_clique(mouse):
             return 2
+        elif self.boutonQuitter.est_clique(mouse):
+            return 3
         return 0
 
 class Victoire:
@@ -138,7 +148,7 @@ class Victoire:
         self.couleurRouge = (220, 40, 40)
         self.couleurJaune = (240, 210, 30)
 
-        self.bouton = Bouton((500, 500), (300, 120), "Assets/BoutonJouer.png")
+        self.boutonMenu = Bouton((605, 500), (90, 90), "Assets/BoutonAccueil.png")
 
     def draw(self, ecran, joueur):
 
@@ -160,8 +170,8 @@ class Victoire:
         ecran.blit(texteJoueur, rectJoueur)
 
         # Texte complémentaire
-        texteFin = self.fontTexte.render("a remporte la partie !", True, self.couleurTexte)
+        texteFin = self.fontTexte.render("a remporté la partie !", True, self.couleurTexte)
         rectFin = texteFin.get_rect(center=(ecran.get_width() // 2, 350))
         ecran.blit(texteFin, rectFin)
 
-        self.bouton.draw(ecran)
+        self.boutonMenu.draw(ecran)
