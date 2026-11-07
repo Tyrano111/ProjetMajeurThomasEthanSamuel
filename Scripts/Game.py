@@ -3,7 +3,11 @@
 #Ici on va certainement faire une class de grille qui s'ocupe de tout les calul sur la grille
 # Et faire une autre class Jeu qui elle s'occupe de gerer les tours de joueurs, la victoire, les points...
 
+<<<<<<< HEAD
 import ConstantesEtVariable as CV
+=======
+from ctypes import Union
+>>>>>>> eda78593c8866e319a0088e5cf39226f1f4cc1c9
 
 
 plateau=[[" "," "," "," "," "," "," "],
@@ -115,22 +119,33 @@ def winner(plateau : list, position : tuple, couleur : str) -> bool:
         return False
 
 
+<<<<<<< HEAD
 def trouve_position(plateau : list, colonne : int, couleur : str) -> tuple:
     '''Renvoie la position de la case la plus basse de la colonne donnée'''
     if plateau[0][colonne] != "." + couleur:
+=======
+def trouve_position(plateau : list, colonne : int) -> tuple:
+    '''Renvoie la position de la case la plus basse de la colonne donnée'''
+    if plateau[0][colonne] != ".":
+>>>>>>> eda78593c8866e319a0088e5cf39226f1f4cc1c9
         for i in range(5,-1,-1):
             if plateau[i][colonne]==' ':
                 return True, i
     return False, 0
 
 
+<<<<<<< HEAD
 def bloque_colonne(colonne : int, couleur : str) -> list:
+=======
+def bloque_colonne(plateau : list, colonne : int, couleur : str) -> list:
+>>>>>>> eda78593c8866e319a0088e5cf39226f1f4cc1c9
     '''Bloque la colonne donnée lors de son tour et celui de l'adversaire'''
     couleur_adverse=""
     if couleur=="r":
         couleur_adverse="j"
     else:
         couleur_adverse="r"
+<<<<<<< HEAD
     if CV.grille[0][colonne] == " " or CV.grille[0][colonne] == f".{couleur_adverse}":
         CV.grille[0][colonne] = f".{couleur}"
     return CV.grille
@@ -143,6 +158,20 @@ def desbloque_colonne(couleur : str) -> list:
     return CV.grille
 
 def fantome(position : tuple, couleur : str):
+=======
+    if plateau[0][colonne] == " " or plateau[0][colonne] == f".{couleur_adverse}":
+        plateau[0][colonne] = f".{couleur}"
+    return plateau
+
+def desbloque_colonne(plateau : list, couleur : str) -> list:
+    '''Débloque la colonne bloquée lors de son tour précédant'''
+    for i in range(7):
+        if plateau[0][i]== f".{couleur}":
+            plateau[0][i]= " " 
+    return plateau
+
+def fantome(plateau : list, position : tuple, couleur : str)-> Union[tuple, str]:
+>>>>>>> eda78593c8866e319a0088e5cf39226f1f4cc1c9
     '''Place un fantôme de la couleur donnée à la position donnée'''
     ligne=position[0]
     colonne=position[1]
@@ -152,12 +181,17 @@ def fantome(position : tuple, couleur : str):
     else:
         return 'position indisponible'
 
+<<<<<<< HEAD
 def desbloque_fantome(position : tuple):
+=======
+def desbloque_fantome(plateau : list, position : tuple)-> Union[bool, tuple]:
+>>>>>>> eda78593c8866e319a0088e5cf39226f1f4cc1c9
     '''Change le fantôme en jeton classique à la position donnée si il y a un jeton sous le fantôme'''
     ligne=position[0]
     colonne=position[1]
     if ligne==0:
         return None
+<<<<<<< HEAD
     if CV.grille[ligne-1][colonne]=="fr":
         CV.grille[ligne-1][colonne]= "r"
         return (ligne-1,colonne), 'r'
@@ -165,3 +199,11 @@ def desbloque_fantome(position : tuple):
         CV.grille[ligne-1][colonne]= "j"
         return (ligne-1,colonne), 'j'
     return None, None
+=======
+    if plateau[ligne-1][colonne]=="fr":
+        plateau[ligne-1][colonne]= "r"
+        return plateau, (ligne-1,colonne)
+    if plateau[ligne-1][colonne]== "fj":
+        plateau[ligne-1][colonne]= "j"
+        return plateau, (ligne-1,colonne)
+>>>>>>> eda78593c8866e319a0088e5cf39226f1f4cc1c9
