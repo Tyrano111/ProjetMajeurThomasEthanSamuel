@@ -2,10 +2,9 @@
 #!!! L'IA JOUERA TOUJOURS LES JAUNES (pour laisser plus de chance au joueur)!!!
 
 import Game as g
+import ConstantesEtVariable as cv
 
 #Valeurs de test
-
-AI_DEPTH=10
 
 empty_grid=[[" "," "," "," "," "," "," "],\
             [" "," "," "," "," "," "," "],\
@@ -18,8 +17,8 @@ test_grid=[ [" "," "," "," "," "," "," "],\
             [" "," "," "," "," "," "," "],\
             [" "," "," "," "," "," "," "],\
             [" "," "," "," "," "," "," "],\
-            [" "," "," "," "," "," "," "],\
-            [" "," "," ","r"," "," "," "]]
+            [" "," "," ","j","r"," "," "],\
+            [" "," "," ","r","r","j"," "]]
 
 #Fonctions de l'IA
 
@@ -31,13 +30,31 @@ def empty_space(grid): #On cherche les colonnes où on peut placer un jeton (don
     empty.sort(key=lambda x: abs(x-3)) #On trie les colonnes par rapport à la colonne centrale (la plus centrale est la meilleure)
     return empty
 
-def minimax(grid, player, depth, position, couleur, alpha=-2, beta=2): #Par récursivité, on va simuler tous les coups possibles pour l'IA et le joueur, et on va attribuer un score à chaque coup possible (1:L'IA gane, 0: égalité, -1: le joueur gagne)
+def score_grid(grid): #Score entre 0.9 et -0.9, toujours entre une défaite (-1) et une victoire (1), source: IA
+    score = 0
+    for fenetre in cv.FENETRES:
+        j = 0
+        r = 0
+        for (l, c) in fenetre:
+            if grid[l][c] == "j":
+                j += 1
+            elif grid[l][c] == "r":
+                r += 1
+        if j!=0 and r!=0: #La fenêtre est composée des 2 ou d'aucune des 2 couleurs, inutile pour les deux camps
+            continue
+        if j!=0:
+            score += cv.POIDS[("j", j)]
+        elif r!=0:
+            score += cv.POIDS[("r", r)]
+    return 0.9 * score / (abs(score) + 60) #Permet de borner le score entre -0.9 et 0.9 (+60 valeur arbitraire déterminée par l'IA en testant plusieurs parties)
+
+def minimax(grid, player, depth, position, couleur, alpha, beta): #Par récursivité, on va simuler tous les coups possibles pour l'IA et le joueur, et on va attribuer un score à chaque coup possible (1:L'IA gane, 0: égalité, -1: le joueur gagne)
     other = "r" if player == "j" else "j"
     game_over=g.winner(position, other)
     if game_over: #Si le jeu est terminé, on retourne le score du gagnant
-        return 1 if other=="j" else -1 #On remplace la couleur du gagnant par un score pour l'IA (1 si l'IA gagne, -1 si le joueur gagne)
+        return (1+depth/1000) if other=="j" else (-1-depth/1000) #On remplace la couleur du gagnant par un score pour l'IA (1 si l'IA gagne, -1 si le joueur gagne), on ajoute depth/1000 pour favoriser les victoires rapides et les défaites lentes
     if depth == 0: #Si on a atteint la profondeur maximale, on retourne 0 (on se sait pas)
-        return 0 
+        return score_grid(grid)
     if empty_space(grid)==[]: #Si il n'y a plus de place, on retourne 0 (égalité)
         return 0
 
@@ -52,15 +69,14 @@ def minimax(grid, player, depth, position, couleur, alpha=-2, beta=2): #Par réc
 
         if player=="j":
             best_value = max(best_value, value)
-            alpha = max(alpha, best_value)      # on a au moins ça
+            alpha = max(alpha, best_value)      #On a au moins ça
         else:
             best_value = min(best_value, value)
-            beta = min(beta, best_value)        # on a au plus ça
+            beta = min(beta, best_value)        #On a au plus ça
 
-        if (player == "j" and best_value == 1) or (player == "r" and best_value == -1):
+        if alpha >= beta:                       #Cette branche ne peut pas changer la décision, on la retire
             break
 
-    
     return best_value
 
 def best_placement(grid, couleur): #On cherche le meilleur coup pour l'IA et on renvoit la colonne correspondante
@@ -82,16 +98,18 @@ def best_placement(grid, couleur): #On cherche le meilleur coup pour l'IA et on 
             grid[l][c] = " "
             return c
         grid[l][c] = " "
-    #Optimisation 3: Jouer au centre en priorité (voir empty_space() )
-    #Opitmisation 4: Alpha beta pruning (on ne teste pas les coups qui sont moins bons que ceux déjà testés) Source: https://www.youtube.com/watch?v=l-hh51ncgDI
+    #Optimisation 3: Jouer au centre en priorité (voir empty_space())
+    #Opitmisation 4: Alpha beta pruning (on ne teste pas les coups qui sont moins bons que ceux déjà testés) Source: https://www.geeksforgeeks.org/dsa/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
+    #Opimisation 5: Au lieu de renvoyer 0 si on ne sait pas, on renvoie le score (voir score_grid())
     for c in a_explorer:
         l=g.trouve_position(c, couleur)[1]
         grid[l][c] = "j"
-        value=minimax(grid, "r", AI_DEPTH, (l,c), couleur, -2,2)
+        value=minimax(grid, "r", cv.AI_DEPTH, (l,c), couleur, -2,2)
         grid[l][c] = " "
         if best_value==None or value>best_value:
             best_value,best=value,c
         
     return best
 
-#Tests
+print(best_placement(g.grille, "j"))
+print(score_grid(g.grille))
