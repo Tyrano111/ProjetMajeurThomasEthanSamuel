@@ -3,22 +3,28 @@ import pygame
 import ConstantesEtVariable as CV
 
 class Jeton:
-    def __init__(self, couleur):
-        self.couleur = couleur
-        self.uiJeton = pygame.image.load("Assets/JetonJaune.png").convert_alpha() if couleur == "j" else pygame.image.load("Assets/JetonRouge.png").convert_alpha()
+    def __init__(self):
+        self.uiJetonJaune = pygame.image.load("Assets/JetonJaune.png").convert_alpha()
+        self.uiJetonRouge = pygame.image.load("Assets/JetonRouge.png").convert_alpha()
+        self.uiJetonnNoir = pygame.image.load("Assets/JetonNoir.png").convert_alpha()
         self.position = [11, 0]
         self.gravite = 2
 
-    def draw(self, ecran):
-        ecran.blit(self.uiJeton, (self.position[0], self.position[1]))
+    def draw(self, ecran, couleur):
+        if couleur == "j":
+            ecran.blit(self.uiJetonJaune, (self.position[0], self.position[1]))
+        elif couleur == "r":
+            ecran.blit(self.uiJetonRouge, (self.position[0], self.position[1]))
+        else: 
+            ecran.blit(self.uiJetonnNoir, (self.position[0], self.position[1]))
 
-    def rebon(self, ecran, positionFinal, forceRebon):
+    def rebon(self, ecran, positionFinal, forceRebon, couleur):
         peut_rebondir = True
         self.position[0] = positionFinal[0] + 11
         self.position[1] += self.gravite
         self.gravite += 1
 
-        self.draw(ecran)
+        self.draw(ecran, couleur)
         if self.position[1] >= positionFinal[1] - self.gravite + 11:
             self.gravite = forceRebon
             forceRebon /= 2
@@ -68,22 +74,40 @@ class Grille:
     def __init__(self):
         self.uiCase = pygame.image.load("Assets/CaseGrille.png").convert_alpha()
         self.uiCaseSurvole = pygame.image.load("Assets/CaseGrilleSurvole.png").convert_alpha()
+        self.uiCaseBloque = pygame.image.load("Assets/CaseBloque.png").convert_alpha()
         self.position = (CV.POS_GRILLE_X, CV.POS_GRILLE_Y)
         self.uiJetonJaune = pygame.image.load("Assets/JetonJaune.png").convert_alpha()
         self.uiJetonRouge = pygame.image.load("Assets/JetonRouge.png").convert_alpha()
+        self.uiJetonNoir = pygame.image.load("Assets/JetonNoir.png").convert_alpha()
+        self.uiJetonFantomeJaune = pygame.image.load("Assets/JetonFantomeJaune.png").convert_alpha()
+        self.uiJetonFantomeRouge = pygame.image.load("Assets/JetonFantomeRouge.png").convert_alpha()
 
     def draw(self, grille, ecran, mouse, useSpell):
+        bloque = None
         for indLigne, ligne in enumerate(grille):
             posLigne = self.position[1] + indLigne * CV.TAILLE_CASE
             for indColone, case in enumerate(ligne):
+                if case == ".j" or case == ".r":
+                    bloque = indColone
                 posColone = self.position[0] + indColone * CV.TAILLE_CASE
-                if case != " ":
-                    ecran.blit(self.uiJetonRouge, (posColone + 11, posLigne + 11)) if case == "r" else ecran.blit(self.uiJetonJaune, (posColone + 11, posLigne + 11)) 
+                if case != " " and case != ".j" and case != ".r":
+                        if case == "r":
+                            ecran.blit(self.uiJetonRouge, (posColone + 11, posLigne + 11))
+                        elif case == "j":
+                            ecran.blit(self.uiJetonJaune, (posColone + 11, posLigne + 11))
+                        elif case == "n":
+                            ecran.blit(self.uiJetonNoir, (posColone + 11, posLigne + 11)) 
+                        elif case == "fj":
+                            ecran.blit(self.uiJetonFantomeJaune, (posColone + 11, posLigne + 11))
+                        else:
+                            ecran.blit(self.uiJetonFantomeRouge, (posColone + 11, posLigne + 11))
                 if useSpell:
                     rect = pygame.Rect(posColone, posLigne, CV.TAILLE_CASE, CV.TAILLE_CASE)
                 else:
                     rect = pygame.Rect(posColone, CV.POS_GRILLE_Y, CV.TAILLE_CASE, CV.TAILLE_GRILLE[1])
-                if rect.collidepoint(mouse):
+                if indColone == bloque:
+                    ecran.blit(self.uiCaseBloque, (posColone, posLigne))
+                elif rect.collidepoint(mouse):
                     ecran.blit(self.uiCaseSurvole, (posColone, posLigne))
                 else:
                     ecran.blit(self.uiCase, (posColone, posLigne))

@@ -3,7 +3,6 @@ import UI
 import Game
 import ConstantesEtVariable as CV
 import pygame
-import test
 
 class Main:
     def __init__(self):
@@ -17,16 +16,17 @@ class Main:
         self.uiGrille = UI.Grille()
         self.victoire = UI.Victoire()
         self.etatSorts = {"r" : ["Normal", "Normal", "Normal"], "j": ["Normal", "Normal", "Normal"]}
-        self.boutons = {"r" : [UI.BoutonSort((1050, 100), 128, "Assets/BoutonSort1"), UI.BoutonSort((1050, 300), 128, "Assets/BoutonSort1"), UI.BoutonSort((1050, 500), 128, "Assets/BoutonSort1")], "j" : [UI.BoutonSort((1050, 100), 128, "Assets/BoutonSort1"), UI.BoutonSort((1050, 300), 128, "Assets/BoutonSort1"), UI.BoutonSort((1050, 500), 128, "Assets/BoutonSort1")]}
+        self.boutons = {"r" : [UI.BoutonSort((1050, 100), 128, "Assets/BoutonSort1"), UI.BoutonSort((1050, 300), 128, "Assets/BoutonJetonNoir"), UI.BoutonSort((1050, 500), 128, "Assets/BoutonFantome")], "j" : [UI.BoutonSort((1050, 100), 128, "Assets/BoutonSort1"), UI.BoutonSort((1050, 300), 128, "Assets/BoutonJetonNoir"), UI.BoutonSort((1050, 500), 128, "Assets/BoutonFantome")]}
         self.indSortEnCour = 0
         self.accueil = UI.Menu("Accueil")
         self.pause = UI.Menu("Pause")
-        self.jeton_jaune = UI.Jeton("j")
-        self.jeton_rouge = UI.Jeton("r")
+        self.jeton = UI.Jeton()
         self.est_en_chute = False
         self.indice_futur_jeton = ()
         self.position_futur_jeton = ()
         self.force_rebon = 0
+        self.conteurSort = 2
+        self.jetonNoir = False
 
     def Update(self):
         while self.etat != "":
@@ -54,27 +54,26 @@ class Main:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.echap = True
-                for i in range(len(self.boutons[self.joueur])):
-                    if event.key == pygame.K_SPACE and self.etatSorts[self.joueur][i] == "Clique":
-                        self.etatSorts[self.joueur][i] = "Utilisé"
-                        self.boutons[self.joueur][i].position = (self.boutons[self.joueur][i].position[0] + 5, self.boutons[self.joueur][i].position[1] + 5)
-                        for ind, etatSort in enumerate(self.etatSorts[self.joueur]):
-                            if etatSort != self.etatSorts[self.joueur][i]:
-                                self.indSortEnCour = ind
-                                print(self.indSortEnCour)
             elif not self.est_en_chute:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         resultat = None
                         mouse = pygame.mouse.get_pos()
-                        for etat in self.etatSorts[self.joueur]:
+                        for ind, etat in enumerate(self.etatSorts[self.joueur]):
                             if etat == "Clique":
-                                print("te")
-                                self.BloqueColonne(mouse)
-                                resultat = ""
+                                if ind == 0:
+                                    self.BloqueColonne(mouse)
+                                    resultat = ""
+                                elif ind == 1:
+                                    self.jetonNoir = True
+                                else:
+                                    self.PlaceFantome(mouse)
+                                    resultat = ""
+                                    self.joueur = "j" if self.joueur == "r" else "r"
                         resultat = self.place_jeton(mouse) if resultat == None else None
                         if resultat != None:
                             self.est_en_chute, self.indice_futur_jeton, self.force_rebon = resultat
+                            print(self.force_rebon)
                             self.position_futur_jeton = self.indice_a_position(self.indice_futur_jeton)
                         for i in range(len(self.boutons[self.joueur])):
                             if self.etatSorts[self.joueur][i] != "Utilisé":
@@ -91,6 +90,7 @@ class Main:
 
         self.PlacementJeton()
         self.InterfaceDeJeu()
+        
 
 
     def UpdateAccueil(self):
@@ -110,9 +110,8 @@ class Main:
                     
 
     def UpdatePause(self):
-        self.uiGrille.draw(self.grille, self.ecran, (0, 0), False)
+        self.uiGrille.draw(CV.grille, self.ecran, (0, 0), False)
         self.pause.draw(self.ecran)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.etat = ""
@@ -143,47 +142,76 @@ class Main:
 
     def PlacementJeton(self):
         if self.est_en_chute:
-            self.force_rebon = self.jeton_jaune.rebon(self.ecran, self.position_futur_jeton, self.force_rebon) if self.joueur == "j" else self.jeton_rouge.rebon(self.ecran, self.position_futur_jeton, self.force_rebon)
+            self.force_rebon = self.jeton.rebon(self.ecran, self.position_futur_jeton, self.force_rebon, "n") if self.jetonNoir else self.jeton.rebon(self.ecran, self.position_futur_jeton, self.force_rebon, self.joueur)
             if self.force_rebon == 0:
                 self.est_en_chute = False
-                self.grille[self.indice_futur_jeton[0]][self.indice_futur_jeton[1]] = self.joueur
-                self.jeton_jaune.position[1] = 0
-                self.jeton_rouge.position[1] = 0
-                gagnant = Game.winner(self.grille, self.indice_futur_jeton, "j") if self.joueur == "j" else Game.winner(self.grille, self.indice_futur_jeton, "r")
-                if gagnant:
-                    self.etat = "Victoire"
+                self.conteurSort -= 1
+                CV.grille[self.indice_futur_jeton[0]][self.indice_futur_jeton[1]] = "n" if self.jetonNoir else self.joueur
+                if self.jetonNoir:
+                    self.jetonNoir = False
+                    self.UtilisationDuBouton()
                 else:
+                    gagnant = Game.winner(CV.grille, self.indice_futur_jeton, "j") if self.joueur == "j" else Game.winner(CV.grille, self.indice_futur_jeton, "r")
+                    if gagnant:
+                        self.etat = "Victoire"
                     self.joueur = "j" if self.joueur == "r" else "r"
+                posFantome, couleurFantome = Game.desbloque_fantome(self.indice_futur_jeton)
+                if posFantome != None:
+                    gagnant = Game.winner(CV.grille, posFantome, couleurFantome)
+                    if gagnant:
+                        self.etat = "Victoire"
+                self.jeton.position[1] = 0
+        if self.conteurSort == 0:
+            Game.desbloque_colonne(self.joueur)
 
     def InterfaceDeJeu(self):
         mouse = pygame.mouse.get_pos()
-        self.uiGrille.draw(self.grille, self.ecran, mouse, False)
+        self.uiGrille.draw(CV.grille, self.ecran, mouse, False)
         for i in range(len(self.boutons[self.joueur])):
             self.boutons[self.joueur][i].draw(self.ecran, self.etatSorts[self.joueur][i])
 
     def ReinitialiserJeu(self):
-        self.grille = [[" ", " ", " ", " ", " ", " ", " "] for i in range(6)]
+        CV.grille = [[" ", " ", " ", " ", " ", " ", " "] for i in range(6)]
         self.est_en_chute = False
         self.joueur = "r"
 
     def place_jeton(self, mouse):
-        for indLigne, ligne in enumerate(self.grille):
+        for indColone in range(7):
+            posColone = CV.POS_GRILLE_X + indColone * CV.TAILLE_CASE
+            rect = pygame.Rect(posColone, CV.POS_GRILLE_Y, CV.TAILLE_CASE, CV.TAILLE_CASE * 6)
+            if rect.collidepoint(mouse):
+                indice_arret = Game.trouve_position(CV.grille, indColone, self.joueur)
+                if indice_arret[0]:
+                    return True, (indice_arret[1], indColone), CV.DICT_FORCE_REBON[indice_arret[1]]
+
+    def BloqueColonne(self, mouse):
+        for indColone in range(7):
+            posColone = CV.POS_GRILLE_X + indColone * CV.TAILLE_CASE
+            rect = pygame.Rect(posColone, CV.POS_GRILLE_Y, CV.TAILLE_CASE, CV.TAILLE_CASE * 6)
+            if rect.collidepoint(mouse):
+                Game.bloque_colonne(indColone, self.joueur)
+                self.conteurSort = 2
+                self.UtilisationDuBouton()
+                
+
+    def PlaceFantome(self, mouse):
+        for indLigne, ligne in enumerate(CV.grille):
             posLigne = CV.POS_GRILLE_Y + indLigne * CV.TAILLE_CASE
             for indColone in range(len(ligne)):
                 posColone = CV.POS_GRILLE_X + indColone * CV.TAILLE_CASE
                 rect = pygame.Rect(posColone, posLigne, CV.TAILLE_CASE, CV.TAILLE_CASE)
                 if rect.collidepoint(mouse):
-                    indice_arret = Game.trouve_position(self.grille, indColone)
-                    if indice_arret[0]:
-                        return True, (indice_arret[1], indColone), CV.DICT_FORCE_REBON[indice_arret[1]]
+                    Game.fantome( (indLigne, indColone), self.joueur)
+                    self.UtilisationDuBouton()
 
-    def BloqueColonne(self, mouse):
-        for ligne in CV.grille:
-            for indColone in range(len(ligne)):
-                posColone = CV.POS_GRILLE_X + indColone * CV.TAILLE_CASE
-                rect = pygame.Rect(posColone, CV.POS_GRILLE_Y, CV.TAILLE_CASE, CV.TAILLE_CASE * 6)
-                if rect.collidepoint(mouse):
-                    Game.bloque_colonne(CV.grille, indColone)
-                    print(CV.grille)
+    def UtilisationDuBouton(self):
+        for i in range(len(self.boutons[self.joueur])):
+            if self.etatSorts[self.joueur][i] == "Clique":
+                self.etatSorts[self.joueur][i] = "Utilisé"
+                self.boutons[self.joueur][i].position = (self.boutons[self.joueur][i].position[0] + 5, self.boutons[self.joueur][i].position[1] + 5)
+                for ind, etatSort in enumerate(self.etatSorts[self.joueur]):
+                    if etatSort != self.etatSorts[self.joueur][i]:
+                        self.indSortEnCour = ind
+
 
 Main().Update()
