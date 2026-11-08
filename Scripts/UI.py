@@ -84,12 +84,12 @@ class Grille:
         self.fontTexte = pygame.font.SysFont("Corbel", 35, bold=True)
 
     def draw(self, grille, ecran, mouse, useSpell, joueur):
-        bloque = None
+        bloques = []
         for indLigne, ligne in enumerate(grille):
             posLigne = self.position[1] + indLigne * CV.TAILLE_CASE
             for indColone, case in enumerate(ligne):
                 if case == ".j" or case == ".r":
-                    bloque = indColone
+                    bloques.append(indColone)
                 posColone = self.position[0] + indColone * CV.TAILLE_CASE
                 if case != " " and case != ".j" and case != ".r":
                         if case == "r":
@@ -106,12 +106,16 @@ class Grille:
                     rect = pygame.Rect(posColone, posLigne, CV.TAILLE_CASE, CV.TAILLE_CASE)
                 else:
                     rect = pygame.Rect(posColone, CV.POS_GRILLE_Y, CV.TAILLE_CASE, CV.TAILLE_GRILLE[1])
-                if indColone == bloque:
-                    ecran.blit(self.uiCaseBloque, (posColone, posLigne))
-                elif rect.collidepoint(mouse):
-                    ecran.blit(self.uiCaseSurvole, (posColone, posLigne))
-                else:
-                    ecran.blit(self.uiCase, (posColone, posLigne))
+                estColonnebloque = False
+                for bloque in bloques:
+                    if indColone == bloque:
+                        ecran.blit(self.uiCaseBloque, (posColone, posLigne))
+                        estColonnebloque = True
+                if not estColonnebloque:
+                    if rect.collidepoint(mouse):
+                        ecran.blit(self.uiCaseSurvole, (posColone, posLigne))
+                    else:
+                        ecran.blit(self.uiCase, (posColone, posLigne))
         titre = self.fontTexte.render("Tour du Joueur :", True, (255, 255, 255))
         rectTitre = titre.get_rect(center=(1065, 50))
         ecran.blit(titre, rectTitre)
