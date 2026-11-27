@@ -20,6 +20,7 @@ class Grille:
         return None
 
     def place_jeton(self, colonne : int, couleur : str):
+        """place le jeton dans la grille et renvoie sa position s'il est posé"""
         position = self.trouve_position(colonne)
         if position is None:
             return None
@@ -27,10 +28,11 @@ class Grille:
         self.grille[position[0]][position[1]] = couleur
         return position
 
-    def reinitialisation_grille(self):
+    def reinitialisation_grille(self)-> None:
+        """remet la grille a zero"""
         self.grille = [[" " for _ in range(7)] for _ in range(6) ]
     
-    def gagnant_l(self, position : tuple, couleur : str) -> bool:
+    def gagnant_l(self, position : tuple, couleur : str) -> tuple[bool, list]:
         """Vérifie si le dernier coup a permis de gagner sur la ligne"""
         ligne=position[0]
         n=0
@@ -51,7 +53,7 @@ class Grille:
             return True,L
         return False, []
 
-    def gagnant_c(self, position : tuple, couleur : str) -> bool:
+    def gagnant_c(self, position : tuple, couleur : str) -> tuple[bool, list]:
         """Vérifie si le dernier coup a permis de gagner sur la colonne"""
         n=0
         L=[]
@@ -72,21 +74,21 @@ class Grille:
             return True,L
         return False, []
 
-    def position_diagonale_bas(self, position : tuple) -> list:
+    def position_diagonale_bas(self, position : tuple) -> tuple[int, int]:
         '''Renvoie la position de la case la plus basse de la diagonale montante passant par la position donnée'''
         ligne=position[0]
         colonne=position[1]
         deplacement=min(5-ligne,colonne)
         return (ligne + deplacement, colonne - deplacement)
 
-    def position_diagonale_haut(self, position : tuple) -> list:
+    def position_diagonale_haut(self, position : tuple) -> tuple[int ,int]:
         '''Renvoie la position de la case la plus haute de la diagonale descendante passant par la position donnée'''
         ligne=position[0]
         colonne=position[1]
         deplacement=min(ligne,colonne)
         return (ligne - deplacement, colonne - deplacement)
 
-    def gagnant_d_bas(self, position : tuple, couleur : str) -> bool:
+    def gagnant_d_bas(self, position : tuple, couleur : str) -> tuple[bool, list]:
         '''Vérifie si le dernier coup a permis de gagner sur la diagonale montante'''
         position_bas=self.position_diagonale_bas(position)
         ligne=position_bas[0]
@@ -111,7 +113,7 @@ class Grille:
         return False, []
 
 
-    def gagnant_d_haut(self, position : tuple, couleur : str) -> bool:
+    def gagnant_d_haut(self, position : tuple, couleur : str) -> tuple[bool, list]:
         '''Vérifie si le dernier coup a permis de gagner sur la diagonale descendante'''
         position_haut=self.position_diagonale_haut(position)
         ligne=position_haut[0]
@@ -136,7 +138,7 @@ class Grille:
         return False, []
 
     def gagnant_l_IA(self, position : tuple, couleur : str) -> bool:
-        """Vérifie si le dernier coup a permis de gagner sur la ligne"""
+        """Vérifie si le dernier coup a permis de gagner sur la ligne fait specifiquement pour l'ia pour opimiser sa vitesse"""
         ligne=position[0]
         n=0
         for i in range(7):
@@ -149,7 +151,7 @@ class Grille:
         return False
 
     def gagnant_c_IA(self, position : tuple, couleur : str) -> bool:
-        """Vérifie si le dernier coup a permis de gagner sur la colonne"""
+        """Vérifie si le dernier coup a permis de gagner sur la colonne fait specifiquement pour l'ia pour opimiser sa vitesse"""
         n=0
         colonne=position[1]
         for i in range(6):
@@ -163,7 +165,7 @@ class Grille:
 
 
     def gagnant_d_bas_IA(self, position : tuple, couleur : str) -> bool:
-        '''Vérifie si le dernier coup a permis de gagner sur la diagonale montante'''
+        '''Vérifie si le dernier coup a permis de gagner sur la diagonale montante fait specifiquement pour l'ia pour opimiser sa vitesse'''
         position_bas=self.position_diagonale_bas(position)
         ligne=position_bas[0]
         colonne=position_bas[1]
@@ -180,7 +182,7 @@ class Grille:
 
 
     def gagnant_d_haut_IA(self, position : tuple, couleur : str) -> bool:
-        '''Vérifie si le dernier coup a permis de gagner sur la diagonale descendante'''
+        '''Vérifie si le dernier coup a permis de gagner sur la diagonale descendante fait specifiquement pour l'ia pour opimiser sa vitesse'''
         position_haut=self.position_diagonale_haut(position)
         ligne=position_haut[0]
         colonne=position_haut[1]
@@ -196,13 +198,14 @@ class Grille:
         return False
 
     def winner_IA(self, position : tuple, couleur : str) -> bool:
-            '''Vérifie si le dernier coup a permis de gagner'''
+            '''Vérifie si le dernier coup a permis de gagner fait specifiquement pour l'ia pour opimiser sa vitesse'''
             return (self.gagnant_d_haut_IA(position, couleur)
                     or self.gagnant_d_bas_IA(position, couleur)
                     or self.gagnant_c_IA(position, couleur)
                     or self.gagnant_l_IA(position, couleur))
 
-    def annexe_winner(self, position : tuple, couleur : str):
+    def annexe_winner(self, position : tuple, couleur : str)-> None:
+        """donne des valeurs aux variables de victoire"""
         self.w_d_haut, self.L_d_haut=self.gagnant_d_haut(position, couleur)
         self.w_d_bas, self.L_d_bas=self.gagnant_d_bas(position, couleur)
         self.w_c, self.L_c=self.gagnant_c(position, couleur)
@@ -217,7 +220,8 @@ class Grille:
                 or self.w_c
                 or self.w_l)
 
-    def positions_gagnante(self):
+    def positions_gagnante(self)-> list:
+        """permet en cas de victoire de creer une liste de tout les jetons ayant permit une victoire"""
         listTot = []
         for elt in self.L_d_haut:
             listTot.append(elt)
@@ -230,7 +234,7 @@ class Grille:
         return listTot
 
 
-    def bloque_colonne(self, colonne : int, couleur : str) -> list:
+    def bloque_colonne(self, colonne : int, couleur : str) -> bool:
         '''Bloque la colonne donnée lors de son tour et celui de l'adversaire'''
         if self.compteur_nb_ligne(0) >= 6:
             return False
@@ -244,13 +248,13 @@ class Grille:
             return True
         return False
 
-    def desbloque_colonne(self, couleur : str) -> list:
+    def desbloque_colonne(self, couleur : str) -> None:
         '''Débloque la colonne bloquée lors de son tour précédant'''
         for i in range(7):
             if self.grille[0][i]== f".{couleur}":
                 self.grille[0][i]= " " 
 
-    def fantome(self, position : tuple, couleur : str):
+    def fantome(self, position : tuple, couleur : str)-> tuple:
         '''Place un fantôme de la couleur donnée à la position donnée'''
         ligne=position[0]
         colonne=position[1]
@@ -262,7 +266,7 @@ class Grille:
             return True, (ligne, colonne)
         return False, None
 
-    def desbloque_fantome(self, position : tuple):
+    def desbloque_fantome(self, position : tuple)-> tuple:
         '''Change le fantôme en jeton classique à la position donnée si il y a un jeton sous le fantôme'''
         ligne=position[0]
         colonne=position[1]
@@ -276,14 +280,16 @@ class Grille:
             return (ligne-1,colonne), 'j'
         return None, None
 
-    def compteur_nb_ligne(self, indLigne):
+    def compteur_nb_ligne(self, indLigne: int)-> int:
+        """permet de savoir si toute une ligne est pleine"""
         compteur = 0
         for val in self.grille[indLigne]:
             if val != " " and val != ".j" and val != ".r":
                 compteur += 1
         return compteur
 
-    def grille_pleine(self):
+    def grille_pleine(self)-> bool:
+        """permet de savoir si toute la grille est pleine"""
         compteur = 0
         for i in range(6):
             compteur += self.compteur_nb_ligne(i)

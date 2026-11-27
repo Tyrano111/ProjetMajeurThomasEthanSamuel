@@ -83,11 +83,12 @@ def best_placement(grid_object): #On cherche le meilleur coup pour l'IA et on re
     #Optimisation 3: Jouer au centre en priorité (voir empty_space())
     #Opitmisation 4: Alpha beta pruning (on ne teste pas les coups qui sont moins bons que ceux déjà testés) Source: https://www.geeksforgeeks.org/dsa/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
     #Opimisation 5: Au lieu de renvoyer 0 si on ne sait pas, on renvoie le score (voir score_grid())
-    
+    alpha = -2
     for c in a_explorer:
         l=grid_object.trouve_position(c)[0]
         grid[l][c] = "j"
-        value=minimax(grid_object, "r", cv.AI_DEPTH, (l,c), -2,2)
+        value=minimax(grid_object, "r", cv.AI_DEPTH, (l,c), alpha,2)
+        alpha = max(alpha, value)
         grid[l][c] = " "
         if best_value==None or value>best_value:
             best_value,best=value,c

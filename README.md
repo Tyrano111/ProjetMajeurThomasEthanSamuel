@@ -73,15 +73,20 @@ Il faut lancer le jeu depuis la racine : les images sont chargées avec des chem
 ├── Pipfile.lock
 ├── Assets/            Images du jeu (grille, jetons, boutons de sorts)
 ├── Scripts/
-│   ├── main.py        Point d'entrée : boucle principale du jeu
+│   ├── Main.py        Point d'entrée : boucle principale du jeu
 │   ├── Jeu.py         Logique de la partie
 │   ├── Grille.py      Logique de lié à la grille 
 │   ├── UI.py          Interface (menus, grille, boutons)
 │   ├── IA.py          Adversaire du mode solo
 │   └── ConstantesEtVariable.py   Constantes partagées
-└── Texts/            Règles et documentation
-```
+├── Texts/             Règles et documentation
+│   ├── ALGORITHMS.md  Explication du fonctionement de l'IA
+│   ├── GAME.md        Règle du jeu
 
+## Documentation
+
+- [Règles du jeu et des sorts](Texts/GAME.md)
+- [Fonctionnement de l'IA](Texts/ALGORITHMS.md)
 
 ## Dépannage
 

@@ -5,6 +5,7 @@ import math
 import ConstantesEtVariable as CV
 
 class Jeton:
+    """class permettant de creer un Jeton qui tombera dans la grille avec une physique"""
     def __init__(self):
         self.uiJetonJaune = pygame.image.load("Assets/JetonJaune.png").convert_alpha()
         self.uiJetonRouge = pygame.image.load("Assets/JetonRouge.png").convert_alpha()
@@ -42,6 +43,7 @@ class Jeton:
         self.position = [11, 0]
 
 class Bouton:
+    """class permettant de creer un bouton a cliquer (utilisé pour les menus)"""
     def __init__(self, position, taille, asset):
         self.position = position
         self.uiBouton = pygame.image.load(asset).convert_alpha()
@@ -55,6 +57,7 @@ class Bouton:
 
 
 class BoutonSort:
+    """class permettant de creer un bouton a cliquer pour les sort il celui ci rond"""
     def __init__(self, position, diametre, asset):
         self.position = position  # coin haut-gauche de l'image
         self.rayon = diametre / 2
@@ -76,7 +79,8 @@ class BoutonSort:
         dy = mouse[1] - self.centre[1]
         return dx * dx + dy * dy <= self.rayon * self.rayon
 
-class Grille:
+class AffichageGrille:
+    """class affichant toute la grille de jeu comptant tout les jetons present dans la grille et la grille en elle même"""
     def __init__(self):
         self.uiCase = pygame.image.load("Assets/CaseGrille.png").convert_alpha()
         self.uiCaseSurvole = pygame.image.load("Assets/CaseGrilleSurvole.png").convert_alpha()
@@ -130,6 +134,7 @@ class Grille:
         ecran.blit(self.uiJetonRouge, (1185, 25)) if joueur == "r" else ecran.blit(self.uiJetonJaune, (1185, 25))
                     
 class Accueil:
+    """class creant tout les design de l'accueil avec ses boutons et ses textes"""
     def __init__(self):
         self.boutonVsIA = Bouton((400, 350), (200, 120), "Assets/BoutonVsIA.png")
         self.boutonJcJ = Bouton((700, 350), (200, 120), "Assets/BoutonJcJ.png")
@@ -155,6 +160,7 @@ class Accueil:
         return 0
 
 class Pause:
+    """class creant tout les design du menu de pause avec ses boutons et ses textes"""
     def __init__(self):
         self.boutonContinuer = Bouton((550, 200), (200, 90), "Assets/BoutonContinuer.png")
         self.boutonAccueil = Bouton((605, 400), (90, 90), "Assets/BoutonAccueil.png")
@@ -173,6 +179,7 @@ class Pause:
         return 0
 
 class Victoire:
+    """class creant tout les design du menu de victoire avec ses boutons et ses textes"""
     def __init__(self):
         self.fontTitre = pygame.font.SysFont("Corbel", 80, bold=True)
         self.fontJoueur = pygame.font.SysFont("Corbel", 55, bold=True)
@@ -215,6 +222,7 @@ class Victoire:
         self.boutonMenu.draw(ecran)
 
 class Particule:
+    """class creant les particules en cas de victoire, elle les crée et les animes"""
     def __init__(self, centre, nombre, couleur, puissanceMax):
         self.particules = []
 
@@ -228,15 +236,15 @@ class Particule:
             couleurParticule = "Red" if couleur == "r" else "Yellow"
 
             listeCouleur = [
-    (255, 70, 70),     # rouge
-    (255, 150, 40),    # orange
-    (255, 225, 60),    # jaune
-    (90, 220, 90),     # vert
-    (60, 200, 255),    # cyan
-    (80, 120, 255),    # bleu
-    (170, 90, 255),    # violet
-    (255, 100, 200),   # rose
-]
+                (255, 70, 70),     # rouge
+                (255, 150, 40),    # orange
+                (255, 225, 60),    # jaune
+                (90, 220, 90),     # vert
+                (60, 200, 255),    # cyan
+                (80, 120, 255),    # bleu
+                (170, 90, 255),    # violet
+                (255, 100, 200),   # rose
+            ]#couleur généré par ia, on avait un peu la flemme de verifier a chaque fois si elle nous allait bien
 
             self.particules.append({
                 "pos": [float(centre[0]), float(centre[1])],
@@ -261,18 +269,12 @@ class Particule:
             # Durée de vie
             p["vie"] -= dt
 
-        self.particules = [
-            p for p in self.particules if p["vie"] > 0
-        ]
+        self.particules = [p for p in self.particules if p["vie"] > 0]
 
     def draw(self, screen):
         for p in self.particules:
-            pygame.draw.circle(
-                screen,
-                p["couleur"],
-                (int(p["pos"][0]), int(p["pos"][1])),
-                p["taille"]
-            )
+            pygame.draw.circle(screen, p["couleur"], (int(p["pos"][0]), int(p["pos"][1])), p["taille"])
 
     def est_terminee(self):
         return len(self.particules) == 0
+    #cette class a été créer a l'aide de la video de Ork Slayer Gamedev (https://www.youtube.com/watch?v=ZiPWN39mGM0) et d'enormement de test pour voir ce qui allait le mieux
