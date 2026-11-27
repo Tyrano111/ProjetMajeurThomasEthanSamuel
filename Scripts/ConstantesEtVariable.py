@@ -10,8 +10,7 @@ POS_COLONES_GRILLE = (80, 200, 320, 440, 560, 680, 800)
 DICT_FORCE_REBON = {0 : -2, 1 : -2.5, 2 : -3, 3 : -3.5, 4 : -4.5, 5 : -6}
 
 #Variable pour l'IA
-AI_DEPTH=6
-
+AI_DEPTH=8
 FENETRES={}
 def construire_fenetres(ligne, colonne):
     #Les fenêtres de 4 horizontales, verticales et diagonales
@@ -31,4 +30,4 @@ def construire_fenetres(ligne, colonne):
 FENETRES = construire_fenetres(6, 7)
 
 POIDS = {("j",4): 10000, ("j", 3): 50,  ("j", 2): 10,  ("j", 1): 1,
-         ("r",4): 10000, ("r", 3): -75, ("r", 2): -11, ("r", 1): -1}
+         ("r",4): -10000, ("r", 3): -75, ("r", 2): -11, ("r", 1): -1}
