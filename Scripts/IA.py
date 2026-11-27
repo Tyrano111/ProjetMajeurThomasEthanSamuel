@@ -3,8 +3,6 @@
 
 import ConstantesEtVariable as cv
 
-#Valeurs de test
-
 #Fonctions de l'IA
 
 def empty_space(grid): #On cherche les colonnes où on peut placer un jeton (donc les colonnes où la case du haut est vide)
@@ -26,7 +24,7 @@ def score_grid(grid): #Score entre 0.9 et -0.9, toujours entre une défaite (-1)
             score += cv.POIDS[("j", j)]
         elif r!=0:
             score += cv.POIDS[("r", r)]
-    return 0.9 * score / (abs(score) + 60) #Permet de borner le score entre -0.9 et 0.9 (+60 valeur arbitraire déterminée par l'IA en testant plusieurs parties)
+    return 0.9 * score / (abs(score) + 60) #Permet de borner le score entre -0.9 et 0.9 (+60 valeur arbitraire déterminée par IA en testant plusieurs parties)
 
 def minimax(grid_object, player, depth, position, alpha, beta): #Par récursivité, on va simuler tous les coups possibles pour l'IA et le joueur, et on va attribuer un score à chaque coup possible (1:L'IA gane, 0: égalité, -1: le joueur gagne)
     grid = grid_object.grille
